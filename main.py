@@ -84,24 +84,24 @@ def main():
         
         current_time = cv2.getTickCount()
         elapsed_time_ms = (current_time - last_print_time) / cv2.getTickFrequency() * 1000
-        if elapsed_time_ms >= 10000:
+        if elapsed_time_ms >= 5000:
             if len(detections) > 0:
                 dic = count_occurrences(detections.data['class_name'])
-                print(dic)
+                # print(dic)
                 last_print_time = cv2.getTickCount()
-                # Define the API endpoint URL
-                url = "https://api.example.com/data"
 
-                # Send the GET request
-                response = requests.get(url)
-                # Check for successful response
+                payload = {
+                "data":dic
+                }
+                print(payload)
+                response = requests.post("https://gemini.up.railway.app/api/gemini/realtimeupdate",json=payload)
+
+                # Check for successful response (may not always be 200)
                 if response.status_code == 200:
                 # Access the response data (assuming JSON format)
-                    data = response.json()
-                    print(data)
+                    print(response.status_code)
                 else:
-                    print(f"Error: API request failed with status code {response.status_code}")
-
+                    print(response.status_code)
         frame = box_annotator.annotate(
             scene=frame,
             detections=detections,
@@ -124,7 +124,8 @@ def count_occurrences(values):
   where keys are unique values and values are their counts.
   """
   counts = Counter(values)
-  return counts
+  return dict(counts)
+
 
 
 
