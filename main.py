@@ -19,7 +19,7 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--webcam-resolution",
         default=[1280, 720],
-        nargs=2,
+        nargs=1,
         type=int
     )
     args = parser.parse_args()
@@ -36,8 +36,9 @@ def show_frame(frame, key_event):
     plt.imshow(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     plt.axis('off')
     plt.draw()
-    plt.pause(0.001)
+    plt.pause(interval=0.1)
     plt.gcf().canvas.mpl_connect('key_press_event', key_event)
+    
 
 def main():
     args = parse_arguments()
@@ -85,7 +86,7 @@ def main():
         current_time = cv2.getTickCount()
         elapsed_time_ms = (current_time - last_print_time) / cv2.getTickFrequency() * 1000
         if elapsed_time_ms >= 5000:
-            if len(detections) > 0:
+            if len(detections) > 8:
                 dic = count_occurrences(detections.data['class_name'])
                 # print(dic)
                 last_print_time = cv2.getTickCount()
@@ -102,6 +103,7 @@ def main():
                     print(response.status_code)
                 else:
                     print(response.status_code)
+        
         frame = box_annotator.annotate(
             scene=frame,
             detections=detections,
@@ -110,13 +112,14 @@ def main():
 
         zone.trigger(detections=detections)
         frame = zone_annotator.annotate(scene=frame)
+         
 
         show_frame(frame, key_event)
         if key_event.key == 'escape':
             break
 
     cap.release()
-    plt.close()
+    # plt.close()
 
 def count_occurrences(values):
   """
